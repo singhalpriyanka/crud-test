@@ -15,12 +15,20 @@ use Yii;
  */
 class User extends \yii\db\ActiveRecord
 {
+    const SCENARIO_CREATE = "create";
     /**
      * @inheritdoc
      */
     public static function tableName()
     {
         return 'user';
+    }
+    
+    public function scenarios()
+    {
+        $scenarios = parent::scenarios();
+        $scenarios['create'] = ['username','last_name','first_name']; 
+        return $scenarios; 
     }
 
     /**
@@ -29,7 +37,7 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['username', 'first_name', 'last_name'], 'required'],
+            [['username', 'first_name', 'last_name'], 'required', 'on'=>'create'],
             [['status','id'], 'integer'],
             [['username', 'first_name', 'last_name'], 'string', 'max' => 255],
             [['username'], 'unique'],

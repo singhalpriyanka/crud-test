@@ -18,32 +18,62 @@ class UserController extends BaseController
     {
        return [
            'add' => ['POST'],
+           'edit' => ['PUT'],
            'index' => ['GET'],
        ];
     }
     
+    /*
+     * GET API to fetch User data
+     */
     public function actionIndex($id="")
     {
         try {
-		$this->getHeader(200);
+                \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
+		
                 if($id != ""){
                     $newModel = new User();
                     $newModel->setAttribute('id', $id);
                     if($newModel->validate()){
                         $model = $this->loadModel($id);
-                        return json_encode(['success' => 1, 'data' => $model->attributes], JSON_PRETTY_PRINT);
+                        $this->getHeader(200);
+                        return ['success' => 1, 'data' => $model->attributes];
                     }else{
                         $this->getHeader(400);
-                        return json_encode(['success' => 0, 'msg'=> "Invalid Id"]);
+                        return ['success' => 0, 'data'=> $newModel->getErrors()];
                     }
 		}else{
 		    $model = User::find()->asArray()->all();
-		    return json_encode(['success' => 1, 'data' => $model], JSON_PRETTY_PRINT);
+                    $this->getHeader(200);
+		    return ['success' => 1, 'data' => $model];
 		}
 
         } catch (\Exception $ex) {
             throw $ex;
         }
+    }
+    
+    /*
+     * POST Request to add new User
+     */
+    public function actionAdd() {
+        
+        \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
+ 
+        $user = new User();
+        $user->scenario = User:: SCENARIO_CREATE;
+        $user->attributes = \yii::$app->request->post();
+
+        if($user->validate())
+        {
+            $user->save();
+            return array('success' => 1, 'data'=> 'User record is successfully saved');
+        }
+        else
+        {
+            return array('success' => 0,'data'=>$user->getErrors());    
+        }
+ 
     }
 
      /**
