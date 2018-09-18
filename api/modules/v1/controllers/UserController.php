@@ -57,21 +57,53 @@ class UserController extends BaseController
      * POST Request to add new User
      */
     public function actionAdd() {
+        try{
         
-        \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
- 
-        $user = new User();
-        $user->scenario = User:: SCENARIO_CREATE;
-        $user->attributes = \yii::$app->request->post();
+            \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
 
-        if($user->validate())
-        {
-            $user->save();
-            return array('success' => 1, 'data'=> 'User record is successfully saved');
+            $user = new User();
+            $user->scenario = User:: SCENARIO_CREATE;
+            $user->attributes = \yii::$app->request->post();
+            
+            if($user->validate())
+            {
+                $user->save();
+                return array('success' => 1, 'data'=> 'User record is successfully saved');
+            }
+            else
+            {
+                return array('success' => 0,'data'=>$user->getErrors());    
+            }
+            
+        } catch (Exception $ex) {
+            throw $ex;
         }
-        else
-        {
-            return array('success' => 0,'data'=>$user->getErrors());    
+    }
+    
+    /*
+     * PUT Request to edit existing User
+     */
+    public function actionEdit($id) {
+        
+        try{
+        
+            \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
+            
+            $user = $this->loadModel($id);
+            $user->scenario = User:: SCENARIO_UPDATE;
+            $user->attributes = \yii::$app->request->post();
+            if($user->validate())
+            {
+                $user->save(false);
+                return array('success' => 1, 'data'=> 'User record is successfully saved');
+            }
+            else
+            {
+                return array('success' => 0,'data'=>$user->getErrors());    
+            }
+            
+        } catch (Exception $ex) {
+            throw $ex;
         }
  
     }

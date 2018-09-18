@@ -16,6 +16,7 @@ use Yii;
 class User extends \yii\db\ActiveRecord
 {
     const SCENARIO_CREATE = "create";
+    const SCENARIO_UPDATE = "update";
     /**
      * @inheritdoc
      */
@@ -28,6 +29,7 @@ class User extends \yii\db\ActiveRecord
     {
         $scenarios = parent::scenarios();
         $scenarios['create'] = ['username','last_name','first_name']; 
+        $scenarios['update'] = ['id','username']; 
         return $scenarios; 
     }
 
@@ -37,10 +39,15 @@ class User extends \yii\db\ActiveRecord
     public function rules()
     {
         return [
-            [['username', 'first_name', 'last_name'], 'required', 'on'=>'create'],
+            [['username', 'first_name', 'last_name'], 'required','on'=>['create']],
+            ['id', 'required','on'=>['update']],
             [['status','id'], 'integer'],
             [['username', 'first_name', 'last_name'], 'string', 'max' => 255],
-            [['username'], 'unique'],
+            [['username'], 'unique', 'on' => 'update','targetClass' => '\common\models\User',
+                'filter' => function ($query) {
+                        $query->andWhere(['not', ['id' => $this->id]]);
+                }
+            ],
         ];
     }
 
