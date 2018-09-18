@@ -10,7 +10,7 @@ class UserController extends BaseController
 
     public function actions() {
         $actions = parent::actions();
-        unset($actions['index']);
+        unset($actions['index'],$actions['delete']);
         return $actions;
     }
     
@@ -20,6 +20,8 @@ class UserController extends BaseController
            'add' => ['POST'],
            'edit' => ['PUT'],
            'index' => ['GET'],
+           'roles' => ['GET'],
+           'delete' => ['DELETE'],
        ];
     }
     
@@ -106,6 +108,47 @@ class UserController extends BaseController
             throw $ex;
         }
  
+    }
+    
+    /*
+     * DELETE API to delete User data
+     */
+    public function actionDelete($id)
+    {
+        try {
+                \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
+		
+                $model = $this->loadModel($id);
+                $model->deleteAll(['id'=>$id]);
+                $this->getHeader(200);
+                return ['success' => 1, 'data' => 'User has been deleted successfully'];
+
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
+    }
+    
+    /*
+     * GET API to fetch User Roles
+     */
+    public function actionRoles($id)
+    {
+        try {
+                \Yii::$app->response->format = \yii\web\Response:: FORMAT_JSON;
+		
+                $model = $this->loadModel($id);
+                $roles = $model->roles;
+                if(count($roles) > 0){
+                    $this->getHeader(200);
+                    return ['success' => 1, 'data' => $roles];
+                }else{
+                    $this->getHeader(400);
+                    return ['success' => 0, 'error_code' => 400, 'message' => "This user has no role assigned yet!"];
+                }
+
+        } catch (\Exception $ex) {
+            throw $ex;
+        }
     }
 
      /**

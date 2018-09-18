@@ -64,4 +64,8 @@ class User extends \yii\db\ActiveRecord
             'status' => 'Status',
         ];
     }
+    
+    public function getRoles() {
+        return $this->hasMany(Roles::className(), ['user_id'=>'id'])->select('role')->asArray();
+    }
 }
